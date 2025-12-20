@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_hub/core/theme/app_theme.dart';
 
-// --- The Main Chat Panel View ---
 class ChatPanel extends StatelessWidget {
   const ChatPanel({super.key});
 
@@ -17,142 +16,194 @@ class ChatPanel extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Model Selector Pill
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.highlightGray,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.psychology_outlined,
-                        size: 18,
-                        color: AppColors.textDark,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Chat GPT 5.2",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Notification Bell
-                IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, size: 24),
-                  onPressed: () {
-                    // Show logs/notifications dialog
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Logs: API Key valid. No new models."),
-                      ),
-                    );
-                  },
-                ),
+                _buildModelSelector(),
+                _buildNotificationBell(context),
               ],
             ),
           ),
-          // 2. Empty Chat Area (Expanded space)
-          Expanded(child: Container()),
-          // 3. Complex Input Area
+
+          // 2. Chat Display Area (Where messages will appear)
+          const Expanded(
+            child: Center(
+              child: Text(
+                "No messages yet. Start a conversation!",
+                style: TextStyle(color: AppColors.iconGray),
+              ),
+            ),
+          ),
+
+          // 3. The New Functional Input Area
           const ChatInputArea(),
         ],
       ),
     );
   }
+
+  Widget _buildModelSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.highlightGray,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.psychology_outlined, size: 18, color: AppColors.textDark),
+          SizedBox(width: 8),
+          Text(
+            "Chat GPT 5.2",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationBell(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.notifications_none_rounded, size: 24),
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Logs: System operational. Gemini 3.0 connected."),
+          ),
+        );
+      },
+    );
+  }
 }
 
-// --- The Detailed Bottom Input Area ---
-class ChatInputArea extends StatelessWidget {
+class ChatInputArea extends StatefulWidget {
   const ChatInputArea({super.key});
+
+  @override
+  State<ChatInputArea> createState() => _ChatInputAreaState();
+}
+
+class _ChatInputAreaState extends State<ChatInputArea> {
+  final TextEditingController _controller = TextEditingController();
+  bool _isThinkerEnabled = true;
+
+  void _handleSend() {
+    if (_controller.text.trim().isNotEmpty) {
+      print("Sending to LLM: ${_controller.text}");
+      _controller.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(24.0),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      height: 80, // Fixed height based on design visually
+      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: AppColors.inputBg,
         borderRadius: BorderRadius.circular(AppStyles.borderRadiusLarge),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min, // Allows the box to wrap content
         children: [
-          // Placeholder Text
-          Text(
-            "Ask Anything",
-            style: TextStyle(
-              color: AppColors.textDark.withOpacity(0.5),
-              fontSize: 16,
+          // 💡 Actual Text Box
+          TextField(
+            controller: _controller,
+            maxLines: 4,
+            minLines: 1,
+            style: const TextStyle(color: AppColors.textDark, fontSize: 16),
+            decoration: InputDecoration(
+              hintText: "Ask Anything",
+              hintStyle: TextStyle(color: AppColors.textDark.withOpacity(0.4)),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8),
             ),
           ),
-          // Bottom Icons Row
+
+          const SizedBox(height: 8),
+
+          // Bottom Action Row
           Row(
             children: [
-              // Left side icons
-              const Icon(Icons.add_circle_outline, size: 20),
-              const SizedBox(width: 12),
-              const Icon(Icons.language, size: 20),
-              const SizedBox(width: 12),
-              const Icon(Icons.code, size: 20),
-              const SizedBox(width: 12),
-              const Icon(Icons.text_fields, size: 20),
+              // Tool Icons
+              _inputActionIcon(Icons.add_circle_outline, "Attach"),
+              _inputActionIcon(Icons.language, "Web Search"),
+              _inputActionIcon(Icons.code, "Code Mode"),
+              _inputActionIcon(Icons.text_fields, "Formatting"),
 
               const Spacer(),
 
-              // Right side: Thinker Chip & Send Button
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors
-                      .backgroundLight, // Slightly lighter than input bg
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.psychology, size: 16),
-                    SizedBox(width: 4),
-                    Text(
-                      "Thinker",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+              // Interactive Thinker Chip
+              InkWell(
+                onTap: () =>
+                    setState(() => _isThinkerEnabled = !_isThinkerEnabled),
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _isThinkerEnabled
+                        ? AppColors.backgroundLight
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.backgroundLight.withOpacity(0.5),
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.psychology,
+                        size: 16,
+                        color: _isThinkerEnabled
+                            ? AppColors.textDark
+                            : AppColors.iconGray,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Thinker",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _isThinkerEnabled
+                              ? AppColors.textDark
+                              : AppColors.iconGray,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
               const SizedBox(width: 12),
-              // Send Button
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: AppColors.textDark, // Dark circle
-                  shape: BoxShape.circle,
+
+              // Actual Send Button
+              IconButton.filled(
+                onPressed: _handleSend,
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.textDark,
+                  foregroundColor: AppColors.backgroundLight,
                 ),
-                child: const Icon(
-                  Icons.send_rounded,
-                  size: 16,
-                  color: AppColors.backgroundLight,
-                ),
+                icon: const Icon(Icons.send_rounded, size: 18),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _inputActionIcon(IconData icon, String tooltip) {
+    return IconButton(
+      icon: Icon(icon, size: 20, color: AppColors.iconGray),
+      tooltip: tooltip,
+      onPressed: () => print("Clicked $tooltip"),
+      padding: const EdgeInsets.only(right: 8),
+      constraints: const BoxConstraints(), // Makes them tighter
     );
   }
 }

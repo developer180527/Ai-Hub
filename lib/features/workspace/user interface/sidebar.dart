@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_hub/core/theme/app_theme.dart';
 
-// --- The Sidebar Widget ---
 class SidebarWidget extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
@@ -17,22 +16,19 @@ class SidebarWidget extends StatelessWidget {
     return Container(
       width: AppStyles.sidebarWidth,
       color: AppColors.sidebarBg,
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+      // 💡 Added 40px top padding to accommodate the native traffic lights
+      padding: const EdgeInsets.only(
+        top: 40.0,
+        left: 12.0,
+        right: 12.0,
+        bottom: 16.0,
+      ),
       child: Column(
         children: [
-          // 1. Window Controls & Top Icons
+          // 1. Top Icons Row (Fake Traffic Lights DELETED)
           Row(
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.circle, size: 12, color: AppColors.windowRed),
-                  SizedBox(width: 8),
-                  Icon(Icons.circle, size: 12, color: AppColors.windowYellow),
-                  SizedBox(width: 8),
-                  Icon(Icons.circle, size: 12, color: AppColors.windowGreen),
-                ],
-              ),
-              const Spacer(),
+              const Spacer(), // Pushes icons to the right side
               IconButton(
                 icon: const Icon(Icons.view_sidebar_outlined),
                 onPressed: () {},
@@ -46,14 +42,13 @@ class SidebarWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                // Replace with actual image asset later
                 backgroundColor: Colors.grey,
                 backgroundImage: NetworkImage(
                   'https://placekitten.com/100/100',
                 ),
               ),
-              SizedBox(width: 12),
-              Text(
+              const SizedBox(width: 12),
+              const Text(
                 "User180527",
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -66,10 +61,9 @@ class SidebarWidget extends StatelessWidget {
           // 3. Chat History Placeholders (Scrollable)
           Expanded(
             child: ListView.separated(
-              itemCount: 10, // Number of placeholder items
+              itemCount: 10,
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                // The gray rounded rectangles in your design
                 return Container(
                   height: 32,
                   decoration: BoxDecoration(
@@ -87,10 +81,10 @@ class SidebarWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.bar_chart_rounded), // Analytics
-              _buildNavItem(1, Icons.chat_bubble_outline_rounded), // Chats
-              _buildNavItem(2, Icons.inventory_2_outlined), // Inventory
-              _buildNavItem(3, Icons.settings_outlined), // Settings
+              _buildNavItem(0, Icons.bar_chart_rounded),
+              _buildNavItem(1, Icons.chat_bubble_outline_rounded),
+              _buildNavItem(2, Icons.inventory_2_outlined),
+              _buildNavItem(3, Icons.settings_outlined),
             ],
           ),
         ],
@@ -103,7 +97,6 @@ class SidebarWidget extends StatelessWidget {
     return IconButton(
       icon: Icon(
         icon,
-        // Make selected icon slightly darker/bolder visually
         color: isSelected ? AppColors.textDark : AppColors.iconGray,
         size: 24,
       ),
