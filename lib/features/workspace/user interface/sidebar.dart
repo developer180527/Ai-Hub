@@ -1,105 +1,96 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ai_hub/core/theme/app_theme.dart';
 
 class SidebarWidget extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
+  final VoidCallback onToggle;
 
   const SidebarWidget({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    required this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: AppStyles.sidebarWidth,
-      color: AppColors.sidebarBg,
-      // 💡 Added 40px top padding to accommodate the native traffic lights
-      padding: const EdgeInsets.only(
-        top: 40.0,
-        left: 12.0,
-        right: 12.0,
-        bottom: 16.0,
-      ),
+      color: AppColors.sidebarBg, // Ensure this isn't transparent!
       child: Column(
         children: [
-          // 1. Top Icons Row (Fake Traffic Lights DELETED)
-          Row(
-            children: [
-              const Spacer(), // Pushes icons to the right side
-              IconButton(
-                icon: const Icon(Icons.view_sidebar_outlined),
-                onPressed: () {},
-              ),
-              IconButton(icon: const Icon(Icons.edit_square), onPressed: () {}),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // 2. User Profile
-          const Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: Colors.grey,
-                backgroundImage: NetworkImage(
-                  'https://placekitten.com/100/100',
+          // Mac Traffic Light Gap
+          SizedBox(height: Platform.isMacOS ? 40.0 : 20.0),
+
+          // Top Controls
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.view_sidebar_outlined),
+                  onPressed: onToggle,
                 ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                "User180527",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textDark,
+                IconButton(
+                  icon: const Icon(Icons.edit_square),
+                  onPressed: () {},
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // 3. Chat History Placeholders (Scrollable)
-          Expanded(
-            child: ListView.separated(
-              itemCount: 10,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                return Container(
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    borderRadius: BorderRadius.circular(
-                      AppStyles.borderRadiusSmall,
-                    ),
-                  ),
-                );
-              },
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          // 4. Bottom Navigation Icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.bar_chart_rounded),
-              _buildNavItem(1, Icons.chat_bubble_outline_rounded),
-              _buildNavItem(2, Icons.inventory_2_outlined),
-              _buildNavItem(3, Icons.settings_outlined),
-            ],
+
+          const SizedBox(height: 20),
+          // User Profile Row... (Add your profile code here)
+
+          // History List
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 8,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, __) => Container(
+                height: 35,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
           ),
+
+          // 💡 THE BOLD HORIZONTAL LINE
+          Container(
+            height: 2, // Extra bold as requested
+            color: const Color.fromARGB(255, 8, 8, 8),
+            width: double.infinity,
+          ),
+
+          // Bottom Nav
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _navBtn(0, Icons.bar_chart),
+                _navBtn(1, Icons.chat_bubble_outline),
+                _navBtn(2, Icons.inventory_2_outlined),
+                _navBtn(3, Icons.settings),
+              ],
+            ),
+          ),
+          SizedBox(height: Platform.isIOS ? 20 : 10),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon) {
-    final isSelected = selectedIndex == index;
+  Widget _navBtn(int index, IconData icon) {
+    bool active = selectedIndex == index;
     return IconButton(
-      icon: Icon(
-        icon,
-        color: isSelected ? AppColors.textDark : AppColors.iconGray,
-        size: 24,
-      ),
+      icon: Icon(icon, color: active ? AppColors.textDark : AppColors.iconGray),
       onPressed: () => onItemSelected(index),
     );
   }
