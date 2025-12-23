@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/workspace/user interface/mainshell.dart';
+import 'features/shell/user_interface/mainshell.dart';
 import 'core/theme/app_theme.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -12,10 +12,15 @@ void main() async {
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
+    titleBarStyle:
+        TitleBarStyle.hidden, // Hides native title bar for that clean look
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    // 💡 THE FIX: Set the minimum window constraints
+    // This prevents the UI from "crashing" if the window is resized too small.
+    await windowManager.setMinimumSize(const Size(800, 600));
+
     await windowManager.show();
     await windowManager.focus();
   });
@@ -23,7 +28,6 @@ void main() async {
   runApp(const AiWorkstationApp());
 }
 
-// --- Main App Widget ---
 class AiWorkstationApp extends StatelessWidget {
   const AiWorkstationApp({super.key});
 
@@ -33,12 +37,12 @@ class AiWorkstationApp extends StatelessWidget {
       title: 'AI Workstation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.backgroundLight,
-        fontFamily: 'San Francisco', // Or Roboto on other platforms
+        scaffoldBackgroundColor: AppColors.backgroundLight, //
+        fontFamily: 'San Francisco',
         useMaterial3: true,
         iconTheme: const IconThemeData(color: AppColors.iconGray, size: 20),
       ),
-      home: const MainLayoutShell(),
+      home: const MainLayoutShell(), //
     );
   }
 }
